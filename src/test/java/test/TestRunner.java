@@ -52,12 +52,7 @@ public class TestRunner {
         // Сортировка методов с аннотацией @Test по приоритету
         List<Method> testMethods = allMethods.stream()
                 .filter(method -> method.isAnnotationPresent(Test.class))
-                .peek(method -> {
-                    int priority = method.getAnnotation(Test.class).priority();
-                    if (priority < 1 || priority > 10) {
-                        throw new IllegalArgumentException("Priority for method " + method.getName() + " must be between 1 and 10.");
-                    }
-                })
+                .peek(TestRunner::validateTestPriority)
                 .sorted(Comparator.comparingInt(method -> method.getAnnotation(Test.class).priority()))
                 .toList();
 
@@ -102,6 +97,13 @@ public class TestRunner {
 
     private static boolean isStatic(Method method) {
         return java.lang.reflect.Modifier.isStatic(method.getModifiers());
+    }
+
+    private static void validateTestPriority(Method method) {
+        int priority = method.getAnnotation(Test.class).priority();
+        if (priority < 1 || priority > 10) {
+            throw new IllegalArgumentException("Priority for method " + method.getName() + " must be between 1 and 10.");
+        }
     }
 
     private static List<Object> parseCsvArguments(Method method) {
