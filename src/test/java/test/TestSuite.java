@@ -4,6 +4,7 @@ import annotation.AfterSuite;
 import annotation.AfterTest;
 import annotation.BeforeSuite;
 import annotation.BeforeTest;
+import annotation.CsvSource;
 import annotation.Test;
 
 public class TestSuite {
@@ -36,6 +37,11 @@ public class TestSuite {
     @AfterTest
     public void afterEach() {
         System.out.println("After Test");
+    }
+
+    @CsvSource("33, Cows, true")
+    public void testCsv(int a, String b, boolean c) {
+        System.out.printf("Parsed CSV: %d, %s, %b", a, b, c);
     }
 
 }
