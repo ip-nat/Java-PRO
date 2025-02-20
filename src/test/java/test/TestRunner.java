@@ -22,6 +22,9 @@ public class TestRunner {
         // Проверка на наличие методов с аннотациями @BeforeSuite и @AfterSuite
         Method beforeSuiteMethod = null;
         Method afterSuiteMethod = null;
+        List<Method> testMethods = new ArrayList<>();
+        List<Method> beforeTestMethods = new ArrayList<>();
+        List<Method> afterTestMethods = new ArrayList<>();
 
         for (Method method : allMethods) {
             if (method.isAnnotationPresent(BeforeSuite.class)) {
@@ -42,7 +45,18 @@ public class TestRunner {
                 }
                 afterSuiteMethod = method;
             }
+            if (method.isAnnotationPresent(Test.class)) {
+                validateTestPriority(method);
+                testMethods.add(method);
+            }
+            if (method.isAnnotationPresent(BeforeTest.class)) {
+                beforeTestMethods.add(method);
+            }
+            if (method.isAnnotationPresent(AfterTest.class)) {
+                afterTestMethods.add(method);
+            }
         }
+
 
         // Выполнение метода @BeforeSuite
         if (beforeSuiteMethod != null) {
@@ -50,30 +64,22 @@ public class TestRunner {
         }
 
         // Сортировка методов с аннотацией @Test по приоритету
-        List<Method> testMethods = allMethods.stream()
-                .filter(method -> method.isAnnotationPresent(Test.class))
-                .peek(TestRunner::validateTestPriority)
-                .sorted(Comparator.comparingInt(method -> method.getAnnotation(Test.class).priority()))
-                .toList();
+        testMethods.sort(Comparator.comparingInt(method -> method.getAnnotation(Test.class).priority()));
 
-        // Выполнение тестов с @BeforeTest и @AfterTest
+        // Выполнение тестов @BeforeTest и @AfterTest
         for (Method testMethod : testMethods) {
             try {
                 // Выполнение метода @BeforeTest перед каждым тестом
-                for (Method method : allMethods) {
-                    if (method.isAnnotationPresent(BeforeTest.class)) {
-                        method.invoke(c.getDeclaredConstructor().newInstance());
-                    }
+                for (Method beforeTestMethod : beforeTestMethods) {
+                    beforeTestMethod.invoke(c.getDeclaredConstructor().newInstance());
                 }
 
                 // Выполнение теста
                 testMethod.invoke(c.getDeclaredConstructor().newInstance());
 
                 // Выполнение метода @AfterTest после каждого теста
-                for (Method method : allMethods) {
-                    if (method.isAnnotationPresent(AfterTest.class)) {
-                        method.invoke(c.getDeclaredConstructor().newInstance());
-                    }
+                for (Method afterTestMethod : afterTestMethods) {
+                    afterTestMethod.invoke(c.getDeclaredConstructor().newInstance());
                 }
             } catch (Exception e) {
                 throw new RuntimeException("Failed to invoke test method: " + testMethod.getName(), e);
