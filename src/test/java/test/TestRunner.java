@@ -28,7 +28,7 @@ public class TestRunner {
 
         for (Method method : allMethods) {
             if (method.isAnnotationPresent(BeforeSuite.class)) {
-                if (!isStatic(method)) {
+                if (!java.lang.reflect.Modifier.isStatic(method.getModifiers())) {
                     throw new RuntimeException("@BeforeSuite method must be static.");
                 }
                 if (beforeSuiteMethod != null) {
@@ -37,7 +37,7 @@ public class TestRunner {
                 beforeSuiteMethod = method;
             }
             if (method.isAnnotationPresent(AfterSuite.class)) {
-                if (!isStatic(method)) {
+                if (!java.lang.reflect.Modifier.isStatic(method.getModifiers())) {
                     throw new RuntimeException("@AfterSuite method must be static.");
                 }
                 if (afterSuiteMethod != null) {
@@ -99,10 +99,6 @@ public class TestRunner {
             }
         }
 
-    }
-
-    private static boolean isStatic(Method method) {
-        return java.lang.reflect.Modifier.isStatic(method.getModifiers());
     }
 
     private static void validateTestPriority(Method method) {
