@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -31,7 +32,9 @@ public class StreamTasks {
                 .sorted(Comparator.reverseOrder())
                 .skip(2)
                 .findFirst();
-        System.out.println("Третье наибольшее число: " + thirdLargest.orElse(null));
+        Integer largestResult = thirdLargest.orElseThrow(()
+                -> new NoSuchElementException("Третье наибольшее число не найдено"));
+        System.out.println("Третье наибольшее число: " + largestResult);
         System.out.println("_____________________________________________________");
 
         System.out.println("3. Поиск 3-го наибольшего «уникального» числа");
@@ -42,7 +45,9 @@ public class StreamTasks {
                 .sorted(Comparator.reverseOrder())
                 .skip(2)
                 .findFirst();
-        System.out.println("Третье наибольшее уникальное число: " + thirdLargestUnique.orElse(null));
+        Integer largestUniqueResult = thirdLargestUnique.orElseThrow(()
+                -> new NoSuchElementException("Третье наибольшее уникальное число не найдено"));
+        System.out.println("Третье наибольшее уникальное число: " + largestUniqueResult);
         System.out.println("_____________________________________________________");
 
         System.out.println("4. Список имен 3 самых старших сотрудников с должностью «Инженер», в порядке убывания");
@@ -82,9 +87,11 @@ public class StreamTasks {
                 "взаимодействия", "с", "внешним", "миром"
         );
         System.out.println("Список слов: " + waveFunction);
-        Optional<String> longestWord = waveFunction.stream()
+        Optional<String> longestWordFromListOptional = waveFunction.stream()
                 .max(Comparator.comparingInt(String::length));
-        System.out.println("Самое длинное слово: " + longestWord.orElse(""));
+        String longestWord_1 = longestWordFromListOptional.orElseThrow(()
+                -> new NoSuchElementException("Самое длинное слово в списке не найдено"));
+        System.out.println("Самое длинное слово: " + longestWord_1);
         System.out.println("_____________________________________________________");
 
         System.out.println("7. HashMap: слово - количество вхождений");
@@ -113,10 +120,12 @@ public class StreamTasks {
                 "раза превышает максимальную частоту сигнала"
         };
         System.out.println("Массив строк: " + Arrays.toString(kotelnikov));
-        Optional<String> longestWordFromArray = Arrays.stream(kotelnikov)
+        Optional<String> longestWordFromArrayOptional = Arrays.stream(kotelnikov)
                 .flatMap(s -> Arrays.stream(s.split(" ")))
                 .max(Comparator.comparingInt(String::length));
-        System.out.println("Самое длинное слово в массиве: " + longestWordFromArray.orElse(""));
+        String longestWord_2 = longestWordFromArrayOptional.orElseThrow(()
+                -> new NoSuchElementException("Самое длинное слово в массиве не найдено"));
+        System.out.println("Самое длинное слово в массиве: " + longestWord_2);
 
     }
 
