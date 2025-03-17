@@ -1,21 +1,34 @@
 package org.example.multithreading;
 
+//отдельный рабочий поток
 public class WorkerThread extends Thread {
 
-    private final ThreadPool pool;
+    private final TaskQueue taskQueue;
+    private volatile boolean isInterrupted = false;
 
-    public WorkerThread(ThreadPool pool) {
-        this.pool = pool;
+    public WorkerThread(TaskQueue taskQueue) {
+        this.taskQueue = taskQueue;
+    }
+
+    public void interruptThread() {
+        isInterrupted = true;
+        interrupt();
     }
 
     @Override
     public void run() {
         while (true) {
-            Runnable task = pool.getTask();
-            if (task == null) {
-                break;
+            try {
+                Runnable task = taskQueue.getTask();
+                task.run();
+            } catch (InterruptedException e) {
+                if (isInterrupted) {
+                    return;
+                }
+                Thread.currentThread().interrupt();
+            } catch (RuntimeException e) {
+                e.printStackTrace();
             }
-            task.run();
         }
     }
 }
